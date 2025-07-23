@@ -1,0 +1,682 @@
+{
+  "name": "workflow101",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 11
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "28f94c73-168d-4726-99c5-97226a960376",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from customers"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "651a132c-35c9-414e-bbb8-9bb4543499b2",
+      "name": "Customers data",
+      "credentials": {
+        "microsoftSql": {
+          "id": "R2UkoSOpRDb5kKIJ",
+          "name": "Hotel app connection"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from transactions"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        272
+      ],
+      "id": "8a0210e4-6374-4c65-8f95-2cfec13f9b43",
+      "name": "Transactions Data",
+      "credentials": {
+        "microsoftSql": {
+          "id": "R2UkoSOpRDb5kKIJ",
+          "name": "Hotel app connection"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from firstname_mapping"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        512
+      ],
+      "id": "a5d833ff-2ad1-4204-b57b-f730d246912a",
+      "name": "Firstname Mapping Data",
+      "credentials": {
+        "microsoftSql": {
+          "id": "R2UkoSOpRDb5kKIJ",
+          "name": "Hotel app connection"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "670dad3a-a225-47f9-b23c-c95975b211d9",
+              "leftValue": "={{ $json.CustomerId }}",
+              "rightValue": "3",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "c1fb228d-b8f0-4968-a8b9-1e49160be563",
+              "leftValue": "={{ $json.PaymentMethod }}",
+              "rightValue": "credit card",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        160
+      ],
+      "id": "e2a39667-b1d1-4070-afd8-44b32f2f9f60",
+      "name": "Filter CustomerId = 3 and pay by credit card"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fe86d641-046d-42c1-8c5e-75e51734f07d",
+              "name": "CustomerId",
+              "value": "={{ $json.CustomerId }}",
+              "type": "string"
+            },
+            {
+              "id": "84152e8d-178c-43af-ab02-763a38674f0a",
+              "name": "Vorname",
+              "value": "={{ $json.Vorname }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        -144
+      ],
+      "id": "44e16c26-266d-47ef-b5ca-1111b9933142",
+      "name": "Select CusId , VorName"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        496,
+        0
+      ],
+      "id": "c0f1e397-31da-46a7-ac74-4c3a941bbbc5",
+      "name": "limit 5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c137fe8f-5410-4dc9-b058-57e5035439f5",
+              "name": "HashCode",
+              "value": "={{ $json.HashCode }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "except",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        32
+      ],
+      "id": "f1bb5f70-206c-42eb-9b66-680cd94983e9",
+      "name": "Select * Except Hashcode"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "44030071-f77c-478a-aa64-24c9c9c750f0",
+              "name": "Gender",
+              "value": "={{ $json.Gender.replace('m','Male').replace('w','Female') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        512
+      ],
+      "id": "2024da9b-b002-407a-9c0f-7f0eed5c8fe3",
+      "name": "Modify Gender"
+    },
+    {
+      "parameters": {
+        "operation": "getTimeBetweenDates",
+        "startDate": "={{ $json.Birthday }}",
+        "endDate": "={{ $today }}",
+        "units": [
+          "year"
+        ],
+        "outputFieldName": "Age",
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        832,
+        32
+      ],
+      "id": "55186b35-76b4-4717-b6f2-24a0d7cf0ce6",
+      "name": "Add Age"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0fc68ec-ac83-4338-b2c7-4c871d99001d",
+              "name": "Age",
+              "value": "={{ $json.Age.years.round(2) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        32
+      ],
+      "id": "ac44d373-b2d6-44b6-9579-317961499568",
+      "name": "Fix 2 place decimal"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        624,
+        512
+      ],
+      "id": "efe2cd0f-a282-45e1-8a81-4c7168142a0a",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "Firstname"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        816,
+        512
+      ],
+      "id": "1ce3dad6-74af-46ff-a8af-69ab7d09965e",
+      "name": "Sort Firstname"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "Age",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        32
+      ],
+      "id": "a5e9fa2b-576e-4666-8e59-8b627ce09f16",
+      "name": "Sort Age Desc"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "CustomerId"
+            },
+            {
+              "aggregation": "sum",
+              "field": "TransactionValue"
+            },
+            {
+              "aggregation": "average",
+              "field": "TransactionValue"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "CustomerId",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        320
+      ],
+      "id": "ce7baa3b-d40a-4c5c-b37d-a8cd4ac20fda",
+      "name": "Sum and Avg Value by Customer"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c136fbe0-b0e4-4dc1-adc6-a46b09b50779",
+              "name": "sum_TransactionValue",
+              "value": "={{ $json.sum_TransactionValue.round(2) }}",
+              "type": "number"
+            },
+            {
+              "id": "27a84e89-4d50-4064-9b53-1570cabe8950",
+              "name": "average_TransactionValue",
+              "value": "={{ $json.average_TransactionValue.round(2) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        320
+      ],
+      "id": "e14b340f-235a-4949-8f99-57a32cb08537",
+      "name": "fix 2 place decimal summarized"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "Vorname",
+              "field2": "Firstname"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1344,
+        64
+      ],
+      "id": "a77d92a6-692d-4efc-9a38-7e94a1c32249",
+      "name": "Merge Mapping and Customers"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "CustomerId",
+              "field2": "CustomerId"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1600,
+        320
+      ],
+      "id": "5e173a1b-4930-44b3-a95b-634cd83642e3",
+      "name": "Merge Customer and Trans"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "caed7536-f14d-42eb-8d5c-483971ce1213",
+              "name": "sum_Value",
+              "value": "={{ $json.sum_TransactionValue }}",
+              "type": "number"
+            },
+            {
+              "id": "e571d9c2-b88e-4b31-a0e5-562b464cfd18",
+              "name": "avg_Value",
+              "value": "={{ $json.average_TransactionValue }}",
+              "type": "number"
+            },
+            {
+              "id": "2a414695-3b79-4444-bc2b-4bba21a20b88",
+              "name": "Count",
+              "value": "={{ $json.count_CustomerId }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "include": "selected",
+        "includeFields": "CustomerId, Firstname, Gender",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1872,
+        320
+      ],
+      "id": "89b8dbea-87a8-4b8e-8ce5-8a90ab4dd4c9",
+      "name": "Finalize Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Customers data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Transactions Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Firstname Mapping Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transactions Data": {
+      "main": [
+        [
+          {
+            "node": "Filter CustomerId = 3 and pay by credit card",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sum and Avg Value by Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customers data": {
+      "main": [
+        [
+          {
+            "node": "limit 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "limit 5": {
+      "main": [
+        [
+          {
+            "node": "Select CusId , VorName",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Select * Except Hashcode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firstname Mapping Data": {
+      "main": [
+        [
+          {
+            "node": "Modify Gender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select CusId , VorName": {
+      "main": [
+        []
+      ]
+    },
+    "Select * Except Hashcode": {
+      "main": [
+        [
+          {
+            "node": "Add Age",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Age": {
+      "main": [
+        [
+          {
+            "node": "Fix 2 place decimal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modify Gender": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Sort Firstname",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix 2 place decimal": {
+      "main": [
+        [
+          {
+            "node": "Sort Age Desc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter CustomerId = 3 and pay by credit card": {
+      "main": [
+        []
+      ]
+    },
+    "Sum and Avg Value by Customer": {
+      "main": [
+        [
+          {
+            "node": "fix 2 place decimal summarized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort Age Desc": {
+      "main": [
+        [
+          {
+            "node": "Merge Mapping and Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fix 2 place decimal summarized": {
+      "main": [
+        [
+          {
+            "node": "Merge Customer and Trans",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Sort Firstname": {
+      "main": [
+        [
+          {
+            "node": "Merge Mapping and Customers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Mapping and Customers": {
+      "main": [
+        [
+          {
+            "node": "Merge Customer and Trans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Customer and Trans": {
+      "main": [
+        [
+          {
+            "node": "Finalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d18b8a2a-76d9-4b4d-8a7c-f937d061e021",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a82a49b35e61052839f335520a717b4caca05a080f179cbd0b8d64e2cea1ef24"
+  },
+  "id": "kf6qzOJSt88mfKv1",
+  "tags": []
+}
